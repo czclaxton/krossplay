@@ -3,6 +3,8 @@ import { sliceBuilder } from './'
 
 const sliceName = 'playlists'
 
+const adapter = createEntityAdapter()
+
 export const getUserPlaylists = createAsyncThunk(
   `${sliceName}/getUserPlaylists`,
   async (spotifyApi, { rejectWithValue }) => {
@@ -11,8 +13,6 @@ export const getUserPlaylists = createAsyncThunk(
         throw { code: 'auth', message: 'Spotify token error' }
 
       const userPlaylists = await spotifyApi.getUserPlaylists()
-
-      console.log('userPlaylists', userPlaylists)
 
       return userPlaylists.body.items
     } catch (err) {
@@ -24,8 +24,6 @@ export const getUserPlaylists = createAsyncThunk(
     }
   }
 )
-
-const adapter = createEntityAdapter()
 
 const entityAdapterThunks = [
   {
@@ -39,10 +37,21 @@ export const initialPlaylistState = {
   entities: {},
   error: null,
   loading: false,
+  selectedPlaylist: null,
 }
 
 export const playlistsSlice = sliceBuilder({
   name: sliceName,
   initialState: initialPlaylistState,
   entityAdapterThunks,
+  reducers: {
+    selectPlaylist: (state, action) => {
+      return {
+        ...state,
+        selectedPlaylist: action.payload,
+      }
+    },
+  },
 })
+
+export const { selectPlaylist } = playlistsSlice.actions

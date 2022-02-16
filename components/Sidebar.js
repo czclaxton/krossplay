@@ -9,14 +9,13 @@ import {
   RssIcon,
 } from '@heroicons/react/outline'
 import { signOut, useSession } from 'next-auth/react'
-import { getUserPlaylists } from '../redux/slices'
+import { getUserPlaylists, selectPlaylist } from '../redux/slices'
 import useSpotify from '../hooks/useSpotify'
 
 function Sidebar() {
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const dispatch = useDispatch()
   const playlistsState = useSelector(state => state.playlists)
-
   const spotifyApi = useSpotify()
 
   useEffect(async () => {
@@ -62,7 +61,11 @@ function Sidebar() {
         <hr className='border-t-[0.1px] border-cyan-900' />
 
         {Object.values(playlistsState.entities).map(playlist => (
-          <p key={playlist.id} className='cursor-pointer py-1 hover:text-white'>
+          <p
+            key={playlist.id}
+            className='cursor-pointer py-1 hover:text-white'
+            onClick={() => dispatch(selectPlaylist(playlist.id))}
+          >
             {playlist.name}
           </p>
         ))}
