@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   HomeIcon,
   SearchIcon,
@@ -8,20 +9,19 @@ import {
   RssIcon,
 } from '@heroicons/react/outline'
 import { signOut, useSession } from 'next-auth/react'
+import { getUserPlaylists } from '../redux/slices'
 import useSpotify from '../hooks/useSpotify'
 
 function Sidebar() {
-  const spotifyApi = useSpotify()
   const { data: session, status } = useSession()
+  const dispatch = useDispatch()
+  const playlistsState = useSelector(state => state.playlists)
 
-  const [playlists, setPlaylists] = useState([])
+  const spotifyApi = useSpotify()
 
   useEffect(async () => {
-    if (spotifyApi.getAccessToken()) {
-      const fetchedPlaylists = await spotifyApi.getUserPlaylists()
-      setPlaylists(fetchedPlaylists.body.items)
-    }
-  }, [session, spotifyApi])
+    dispatch(getUserPlaylists(spotifyApi))
+  }, [session])
 
   return (
     <div className='h-screen overflow-auto border-r border-gray-900 p-5 text-sm text-cyan-500 scrollbar-hide'>
@@ -61,7 +61,7 @@ function Sidebar() {
         </button>
         <hr className='border-t-[0.1px] border-cyan-900' />
 
-        {playlists.map(playlist => (
+        {Object.values(playlistsState.entities).map(playlist => (
           <p key={playlist.id} className='cursor-pointer py-1 hover:text-white'>
             {playlist.name}
           </p>
