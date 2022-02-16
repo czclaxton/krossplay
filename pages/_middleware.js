@@ -7,7 +7,7 @@ export const middleware = async (req) => {
   const url = req.nextUrl.clone()
 
   // Allow request if token exists or for next-auth request
-  if (url.pathname.includes('/api/auth') || token) {
+  if (url.pathname.startsWith('/api/auth') || token) {
     return NextResponse.next()
   }
 
