@@ -14,19 +14,19 @@ function MainContent() {
   }, [])
 
   return (
-    <div className="flex-grow text-white">
-      <header className="absolute top-5 right-8">
+    <div className='flex-grow text-white'>
+      <header className='absolute top-5 right-8'>
         <div
           className={`flex cursor-pointer items-center space-x-3 rounded-full bg-gray-900 p-1 pr-2 opacity-90 hover:opacity-80`}
         >
           <img
-            className="h-10 w-10 rounded-full"
+            className='h-10 w-10 rounded-full'
             src={session?.user.image}
-            alt=""
+            alt=''
           />
 
           <h2>{session?.user.name}</h2>
-          <ChevronDownIcon className="h-5 w-5" />
+          <ChevronDownIcon className='h-5 w-5' />
         </div>
       </header>
       <section
