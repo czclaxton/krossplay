@@ -23,7 +23,7 @@ function Sidebar() {
   }, [session])
 
   return (
-    <div className='h-screen overflow-auto border-r border-gray-900 p-5 text-sm text-cyan-500 scrollbar-hide'>
+    <div className='hidden h-screen overflow-auto border-r border-gray-900 p-5 text-xs text-cyan-500 scrollbar-hide sm:max-w-[12rem] md:inline-flex lg:max-w-[15rem] lg:text-sm'>
       <div className='space-y-1'>
         <button
           className='delay-50 flex items-center space-x-2 py-1 transition duration-300  ease-in-out hover:scale-105 hover:text-white'
@@ -64,7 +64,9 @@ function Sidebar() {
           <p
             key={playlist.id}
             className='cursor-pointer py-1 hover:text-white'
-            onClick={() => dispatch(selectPlaylist(playlist.id))}
+            onClick={() =>
+              dispatch(selectPlaylist({ playlistId: playlist.id }))
+            }
           >
             {playlist.name}
           </p>

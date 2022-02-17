@@ -48,7 +48,7 @@ export const playlistsSlice = sliceBuilder({
     selectPlaylist: (state, action) => {
       return {
         ...state,
-        selectedPlaylist: action.payload,
+        selectedPlaylist: state.entities[action.payload.playlistId],
       }
     },
   },
