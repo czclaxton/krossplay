@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { ChevronDownIcon } from '@heroicons/react/outline'
 import { useSelector, useDispatch } from 'react-redux'
 import PlaylistSongs from '../components/PlaylistSongs'
@@ -19,29 +19,29 @@ function MainContent() {
   // }, [playlistsState.selectedPlaylist])
 
   return (
-    <div className='flex-grow text-white'>
+    <div className='h-screen flex-grow overflow-y-scroll text-whiteA scrollbar-hide'>
       <header className='absolute top-5 right-8'>
         <div
-          className={`flex cursor-pointer items-center space-x-3 rounded-full bg-black p-1 pr-2 opacity-90 hover:opacity-80`}
+          className='flex cursor-pointer items-center space-x-3 rounded-full bg-midnightB p-1 pr-2 opacity-90 hover:text-pinkA hover:opacity-80'
+          onClick={signOut}
         >
           <img
             className='h-10 w-10 rounded-full'
-            src={session?.user.image}
+            src={session?.user?.image}
             alt=''
           />
 
-          <h2>{session?.user.name}</h2>
+          <h2>{session?.user?.name}</h2>
           <ChevronDownIcon className='h-5 w-5' />
         </div>
       </header>
 
       <section
-        className={`flex h-80 items-end space-x-7 bg-gradient-to-b p-8 ${color} to-gray-900 text-white`}
+        className={`flex h-80 items-end space-x-7 bg-gradient-to-b p-8 ${color} to-gray-900 text-whiteA`}
       >
-        {/* {playlistsState.selectedPlaylist !== null ?? ( */}
         <>
           <img
-            src={playlistsState.selectedPlaylist?.images[0].url}
+            src={playlistsState.selectedPlaylist?.images[0]?.url}
             className='h-44 w-44 shadow-2xl'
             alt=''
           />
@@ -52,13 +52,10 @@ function MainContent() {
             </h1>
           </div>
         </>
-        {/* )} */}
       </section>
-      {/* {playlistsState.selectedPlaylist !== null ?? ( */}
       <div>
         <PlaylistSongs />
       </div>
-      {/* )} */}
     </div>
   )
 }

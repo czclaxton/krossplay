@@ -13,8 +13,26 @@ export const getUserPlaylists = createAsyncThunk(
         throw { code: 'auth', message: 'Spotify token error' }
 
       const userPlaylists = await spotifyApi.getUserPlaylists()
-
       return userPlaylists.body.items
+    } catch (err) {
+      return rejectWithValue({
+        code: 'error',
+        message: err.message ? err.message : 'Unknown error',
+        fields: [],
+      })
+    }
+  }
+)
+
+export const setSelectedPlaylist = createAsyncThunk(
+  `${sliceName}/setSelectedPlaylist`,
+  async ({ playlistId, spotifyApi }, { rejectWithValue }) => {
+    try {
+      if (!spotifyApi.getAccessToken())
+        throw { code: 'auth', message: 'Spotify token error' }
+
+      const playlist = await spotifyApi.getPlaylist(playlistId)
+      return playlist.body
     } catch (err) {
       return rejectWithValue({
         code: 'error',
@@ -30,6 +48,12 @@ const entityAdapterThunks = [
     adapterFunc: adapter.setAll,
     thunk: getUserPlaylists,
   },
+  {
+    adapterFunc: (state, action) => {
+      state.selectedPlaylist = action
+    },
+    thunk: setSelectedPlaylist,
+  },
 ]
 
 export const initialPlaylistState = {
@@ -44,14 +68,5 @@ export const playlistsSlice = sliceBuilder({
   name: sliceName,
   initialState: initialPlaylistState,
   entityAdapterThunks,
-  reducers: {
-    selectPlaylist: (state, action) => {
-      return {
-        ...state,
-        selectedPlaylist: state.entities[action.payload.playlistId],
-      }
-    },
-  },
+  reducers: {},
 })
-
-export const { selectPlaylist } = playlistsSlice.actions
