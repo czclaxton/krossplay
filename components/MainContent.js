@@ -3,7 +3,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { ChevronDownIcon } from '@heroicons/react/outline'
 import { useSelector, useDispatch } from 'react-redux'
 import PlaylistSongs from '../components/PlaylistSongs'
-// import useSpotify from '../hooks/useSpotify'
+import { useSpotify } from '../hooks'
 // import { shuffle } from 'lodash'
 // import { pageColors } from '../styles/styles.js'
 

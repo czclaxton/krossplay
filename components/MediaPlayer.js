@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useSpotify, useSongInfo } from '../hooks'
 import { useSession } from 'next-auth/react'
-import { hydrateMediaPlayer } from '../redux/slices'
-import { SwitchHorizontalIcon } from '@heroicons/react/solid'
+import { hydrateMediaPlayer, skipToPrevious } from '../redux/slices'
+import { SwitchHorizontalIcon, RewindIcon } from '@heroicons/react/solid'
 
 function MediaPlayer() {
   const mediaPlayerState = useSelector(state => state.mediaPlayer)
@@ -36,7 +36,11 @@ function MediaPlayer() {
         </div>
       </div>
       <div>
-        <SwitchHorizontalIcon />
+        <SwitchHorizontalIcon className='media-button' />
+        <RewindIcon
+          className='media-button'
+          // onClick={() => dispatch(skipToPrevious(spotifyApi))}
+        />
       </div>
     </div>
   )

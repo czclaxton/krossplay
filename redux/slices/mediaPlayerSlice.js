@@ -3,15 +3,22 @@ import { sliceBuilder } from '.'
 
 const sliceName = 'mediaPlayer'
 
-const adapter = createEntityAdapter()
-
 const playOrPause = (currentTrack, { isPlaying, selectedMedia }) => {
-  if (isPlaying === false && selectedMedia === null) return 'play'
+  if (!selectedMedia && currentTrack?.id) {
+    return 'play'
+  }
 
-  if (isPlaying === true && selectedMedia?.id === currentTrack.id)
+  if (isPlaying === false && selectedMedia === null && currentTrack?.id) {
+    return 'play'
+  }
+
+  if (isPlaying === true && selectedMedia?.id === currentTrack.id) {
     return 'pause'
+  }
 
-  if (isPlaying === true && selectedMedia?.id !== currentTrack.id) return 'play'
+  if (isPlaying === true && selectedMedia?.id !== currentTrack.id) {
+    return 'play'
+  }
 
   throw { code: 'spotifyApi', message: 'Error toggling track' }
 }
@@ -68,6 +75,30 @@ export const hydrateMediaPlayer = createAsyncThunk(
   }
 )
 
+// export const skipToPrevious = createAsyncThunk(
+//   `${sliceName}/skipToPrevious`,
+//   async (spotifyApi, { rejectWithValue }) => {
+//     try {
+//       console.log('test ================================ ')
+//       if (!spotifyApi.getAccessToken())
+//         throw { code: 'auth', message: 'Spotify token error' }
+
+//       const res = await spotifyApi.skipToPrevious()
+
+//       console.log('res', res)
+
+//       if (statusCode !== 204)
+//         throw { code: 'spotifyApi', message: 'Error skipping track' }
+//     } catch (err) {
+//       return rejectWithValue({
+//         code: err.code || 'error',
+//         message: err.message ? err.message : 'Unknown error',
+//         fields: [],
+//       })
+//     }
+//   }
+// )
+
 const entityAdapterThunks = [
   {
     adapterFunc: (state, payload) => {
@@ -84,6 +115,14 @@ const entityAdapterThunks = [
     },
     thunk: hydrateMediaPlayer,
   },
+  // {
+  //   adapterFunc: (state, { selectedMedia, isPlaying }) => {
+  //     // state.selectedMedia = selectedMedia
+  //     // state.isPlaying = isPlaying
+  //     // state.volume = 50
+  //   },
+  //   thunk: skipToPrevious,
+  // },
 ]
 
 export const initialMediaPlayerState = {
