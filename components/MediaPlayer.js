@@ -118,7 +118,7 @@ function MediaPlayer() {
           className='media-button'
         />
         <input
-          className='w-14 cursor-pointer md:w-28'
+          className='form-range w-14 cursor-pointer md:w-28'
           type='range'
           value={volume}
           onChange={e => {
