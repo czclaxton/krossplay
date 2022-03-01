@@ -1,14 +1,13 @@
 import React from 'react'
 import { useSpotify } from '../hooks'
 import { msToMinutesAndSeconds } from '../lib/helpers/time'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { togglePlayTrack } from '../redux/slices'
 
 function SpotifySong({ order, track }) {
   const spotifyApi = useSpotify()
   const dispatch = useDispatch()
 
-  //   const mediaPlayerState = useSelector(state => state.mediaPlayer)
   return (
     <div
       className='grid cursor-pointer grid-cols-2 rounded-md py-1 px-5 text-grayA hover:bg-pinkB hover:text-whiteA'

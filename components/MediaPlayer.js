@@ -2,8 +2,20 @@ import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useSpotify, useSongInfo } from '../hooks'
 import { useSession } from 'next-auth/react'
-import { hydrateMediaPlayer, skipToPrevious } from '../redux/slices'
-import { SwitchHorizontalIcon, RewindIcon } from '@heroicons/react/solid'
+import { hydrateMediaPlayer, togglePlayTrack } from '../redux/slices'
+import {
+  SwitchHorizontalIcon,
+  RewindIcon,
+  VolumeUpIcon,
+  ReplyIcon,
+  PlayIcon,
+  PauseIcon,
+  FastForwardIcon,
+} from '@heroicons/react/solid'
+import {
+  HeartIcon,
+  VolumeUpIcon as VolumeDownIcon,
+} from '@heroicons/react/outline'
 
 function MediaPlayer() {
   const mediaPlayerState = useSelector(state => state.mediaPlayer)
@@ -35,12 +47,44 @@ function MediaPlayer() {
           <p className='text-pinkA'>{songInfo?.artists?.[0]?.name}</p>
         </div>
       </div>
-      <div>
+      <div className='flex items-center  justify-evenly'>
         <SwitchHorizontalIcon className='media-button' />
         <RewindIcon
           className='media-button'
           // onClick={() => dispatch(skipToPrevious(spotifyApi))}
         />
+
+        {mediaPlayerState?.isPlaying ? (
+          <PauseIcon
+            onClick={() =>
+              dispatch(
+                togglePlayTrack({
+                  currentTrack: songInfo,
+                  spotifyApi,
+                })
+              )
+            }
+            className='media-button h-10 w-10'
+          />
+        ) : (
+          <PlayIcon
+            onClick={() =>
+              dispatch(
+                togglePlayTrack({
+                  currentTrack: songInfo,
+                  spotifyApi,
+                })
+              )
+            }
+            className='media-button h-10 w-10'
+          />
+        )}
+
+        <FastForwardIcon
+          className='media-button'
+          // onClick={() => dispatch(skipToPrevious(spotifyApi))}
+        />
+        <ReplyIcon className='media-button' />
       </div>
     </div>
   )

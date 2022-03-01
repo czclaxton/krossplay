@@ -3,25 +3,55 @@ import { sliceBuilder } from '.'
 
 const sliceName = 'mediaPlayer'
 
-const playOrPause = (currentTrack, { isPlaying, selectedMedia }) => {
-  if (!selectedMedia && currentTrack?.id) {
-    return 'play'
-  }
+export const playTrack = createAsyncThunk(
+  `${sliceName}/playTrack`,
+  async ({ currentTrack, spotifyApi }, { rejectWithValue, getState }) => {
+    try {
+      if (!spotifyApi.getAccessToken())
+        throw { code: 'auth', message: 'Spotify token error' }
 
-  if (isPlaying === false && selectedMedia === null && currentTrack?.id) {
-    return 'play'
-  }
+      const { statusCode } = await spotifyApi['play']({
+        uris: [currentTrack.uri],
+      })
 
-  if (isPlaying === true && selectedMedia?.id === currentTrack.id) {
-    return 'pause'
-  }
+      if (statusCode !== 204)
+        throw { code: 'spotifyApi', message: 'Error making play request' }
 
-  if (isPlaying === true && selectedMedia?.id !== currentTrack.id) {
-    return 'play'
+      return currentTrack
+    } catch (err) {
+      return rejectWithValue({
+        code: err.code || 'error',
+        message: err.message ? err.message : 'Unknown error',
+        fields: [],
+      })
+    }
   }
+)
 
-  throw { code: 'spotifyApi', message: 'Error toggling track' }
-}
+export const pauseTrack = createAsyncThunk(
+  `${sliceName}/pauseTrack`,
+  async ({ currentTrack, spotifyApi }, { rejectWithValue }) => {
+    try {
+      if (!spotifyApi.getAccessToken())
+        throw { code: 'auth', message: 'Spotify token error' }
+
+      const { statusCode } = await spotifyApi['pause']({
+        uris: [currentTrack.uri],
+      })
+
+      if (statusCode !== 204)
+        throw { code: 'spotifyApi', message: 'Error making play request' }
+
+      return currentTrack
+    } catch (err) {
+      return rejectWithValue({
+        code: err.code || 'error',
+        message: err.message ? err.message : 'Unknown error',
+        fields: [],
+      })
+    }
+  }
+)
 
 export const togglePlayTrack = createAsyncThunk(
   `${sliceName}/togglePlayTrack`,
@@ -30,16 +60,35 @@ export const togglePlayTrack = createAsyncThunk(
       if (!spotifyApi.getAccessToken())
         throw { code: 'auth', message: 'Spotify token error' }
 
-      const { statusCode } = await spotifyApi[
-        playOrPause(currentTrack, getState().mediaPlayer)
-      ]({
-        uris: [currentTrack.uri],
-      })
+      const {
+        body: { item: currentMedia },
+      } = await spotifyApi.getMyCurrentPlayingTrack()
 
-      if (statusCode !== 204)
+      const {
+        body: { is_playing: isPlaying },
+      } = await spotifyApi.getMyCurrentPlaybackState()
+
+      let status_code
+      let action
+
+      if (currentTrack?.id === currentMedia?.id) {
+        action = isPlaying ? 'pause' : 'play'
+        const { statusCode } = await spotifyApi[action]({
+          uris: [currentTrack.uri],
+        })
+        status_code = statusCode
+      } else {
+        action = 'play'
+        const { statusCode } = await spotifyApi[action]({
+          uris: [currentTrack.uri],
+        })
+        status_code = statusCode
+      }
+
+      if (status_code !== 204)
         throw { code: 'spotifyApi', message: 'Error making play request' }
 
-      return currentTrack
+      return { ...currentTrack, isPlaying: action === 'play' }
     } catch (err) {
       return rejectWithValue({
         code: err.code || 'error',
@@ -79,13 +128,10 @@ export const hydrateMediaPlayer = createAsyncThunk(
 //   `${sliceName}/skipToPrevious`,
 //   async (spotifyApi, { rejectWithValue }) => {
 //     try {
-//       console.log('test ================================ ')
 //       if (!spotifyApi.getAccessToken())
 //         throw { code: 'auth', message: 'Spotify token error' }
 
 //       const res = await spotifyApi.skipToPrevious()
-
-//       console.log('res', res)
 
 //       if (statusCode !== 204)
 //         throw { code: 'spotifyApi', message: 'Error skipping track' }
@@ -102,10 +148,24 @@ export const hydrateMediaPlayer = createAsyncThunk(
 const entityAdapterThunks = [
   {
     adapterFunc: (state, payload) => {
-      state.selectedMedia = !state.isPlaying ? payload : null
-      state.isPlaying = !state.isPlaying
+      state.selectedMedia = payload
+      state.isPlaying = payload.isPlaying
     },
     thunk: togglePlayTrack,
+  },
+  {
+    adapterFunc: (state, payload) => {
+      state.selectedMedia = payload
+      state.isPlaying = true
+    },
+    thunk: playTrack,
+  },
+  {
+    adapterFunc: (state, payload) => {
+      state.selectedMedia = payload
+      state.isPlaying = false
+    },
+    thunk: pauseTrack,
   },
   {
     adapterFunc: (state, { selectedMedia, isPlaying }) => {
