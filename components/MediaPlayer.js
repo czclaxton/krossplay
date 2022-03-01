@@ -1,8 +1,13 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
+import { debounce } from 'lodash'
 import { useSelector, useDispatch } from 'react-redux'
 import { useSpotify, useSongInfo } from '../hooks'
 import { useSession } from 'next-auth/react'
-import { hydrateMediaPlayer, togglePlayTrack } from '../redux/slices'
+import {
+  hydrateMediaPlayer,
+  togglePlayTrack,
+  updateVolume,
+} from '../redux/slices'
 import {
   SwitchHorizontalIcon,
   RewindIcon,
@@ -19,10 +24,24 @@ import {
 
 function MediaPlayer() {
   const mediaPlayerState = useSelector(state => state.mediaPlayer)
+  const isPlaying = useSelector(state => state.mediaPlayer.isPlaying)
   const spotifyApi = useSpotify()
   const dispatch = useDispatch()
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
+  const [volume, setVolume] = useState(mediaPlayerState?.volume || 50)
   const songInfo = useSongInfo()
+
+  const debouncedAdjustVolume = useCallback(
+    debounce(volume => {
+      try {
+        dispatch(updateVolume(volume))
+        spotifyApi.setVolume(volume)
+      } catch (err) {
+        throw err
+      }
+    }, 500),
+    []
+  )
 
   useEffect(() => {
     if (
@@ -32,7 +51,13 @@ function MediaPlayer() {
     ) {
       dispatch(hydrateMediaPlayer(spotifyApi))
     }
-  }, [mediaPlayerState?.selectedMedia?.id, spotifyApi, session])
+  }, [mediaPlayerState?.selectedMedia, spotifyApi, session])
+
+  useEffect(() => {
+    if (volume > 0 && volume < 100) {
+      debouncedAdjustVolume(volume)
+    }
+  }, [volume])
 
   return (
     <div className='grid h-28 grid-cols-3 border-t border-pinkB border-opacity-50 bg-midnightB px-2 text-xs md:px-5 md:text-base'>
@@ -54,7 +79,7 @@ function MediaPlayer() {
           // onClick={() => dispatch(skipToPrevious(spotifyApi))}
         />
 
-        {mediaPlayerState?.isPlaying ? (
+        {isPlaying ? (
           <PauseIcon
             onClick={() =>
               dispatch(
@@ -85,6 +110,27 @@ function MediaPlayer() {
           // onClick={() => dispatch(skipToPrevious(spotifyApi))}
         />
         <ReplyIcon className='media-button' />
+      </div>
+
+      <div className='flex items-center justify-end space-x-3 pr-5 md:space-x-4'>
+        <VolumeDownIcon
+          onClick={() => volume > 0 && setVolume(prev => prev - 10)}
+          className='media-button'
+        />
+        <input
+          className='w-14 cursor-pointer md:w-28'
+          type='range'
+          value={volume}
+          onChange={e => {
+            setVolume(Number(e.target.value))
+          }}
+          min={0}
+          max={100}
+        />
+        <VolumeUpIcon
+          onClick={() => volume < 100 && setVolume(prev => prev + 10)}
+          className='media-button'
+        />
       </div>
     </div>
   )

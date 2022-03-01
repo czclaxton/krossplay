@@ -5,7 +5,7 @@ const sliceName = 'mediaPlayer'
 
 export const playTrack = createAsyncThunk(
   `${sliceName}/playTrack`,
-  async ({ currentTrack, spotifyApi }, { rejectWithValue, getState }) => {
+  async ({ currentTrack, spotifyApi }, { rejectWithValue }) => {
     try {
       if (!spotifyApi.getAccessToken())
         throw { code: 'auth', message: 'Spotify token error' }
@@ -200,13 +200,13 @@ export const mediaPlayerSlice = sliceBuilder({
   initialState: initialMediaPlayerState,
   entityAdapterThunks,
   reducers: {
-    // toggleIsPlaying: (state, action) => {
-    //   return {
-    //     ...state,
-    //     isPlaying: !state.isPlaying,
-    //   }
-    // },
+    updateVolume: (state, { payload }) => {
+      return {
+        ...state,
+        volume: payload,
+      }
+    },
   },
 })
 
-// export const { toggleIsPlaying } = mediaPlayerSlice.actions
+export const { updateVolume } = mediaPlayerSlice.actions
