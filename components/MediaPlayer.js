@@ -7,6 +7,8 @@ import {
   hydrateMediaPlayer,
   togglePlayTrack,
   updateVolume,
+  skipToPrevious,
+  skipToNext,
 } from '../redux/slices'
 import {
   SwitchHorizontalIcon,
@@ -76,7 +78,7 @@ function MediaPlayer() {
         <SwitchHorizontalIcon className='media-button' />
         <RewindIcon
           className='media-button'
-          // onClick={() => dispatch(skipToPrevious(spotifyApi))}
+          onClick={() => dispatch(skipToPrevious(spotifyApi))}
         />
 
         {isPlaying ? (
@@ -107,7 +109,7 @@ function MediaPlayer() {
 
         <FastForwardIcon
           className='media-button'
-          // onClick={() => dispatch(skipToPrevious(spotifyApi))}
+          onClick={() => dispatch(skipToNext(spotifyApi))}
         />
         <ReplyIcon className='media-button' />
       </div>

@@ -124,26 +124,53 @@ export const hydrateMediaPlayer = createAsyncThunk(
   }
 )
 
-// export const skipToPrevious = createAsyncThunk(
-//   `${sliceName}/skipToPrevious`,
-//   async (spotifyApi, { rejectWithValue }) => {
-//     try {
-//       if (!spotifyApi.getAccessToken())
-//         throw { code: 'auth', message: 'Spotify token error' }
+export const skipToNext = createAsyncThunk(
+  `${sliceName}/skipToNext`,
+  async (spotifyApi, { rejectWithValue }) => {
+    try {
+      if (!spotifyApi.getAccessToken())
+        throw { code: 'auth', message: 'Spotify token error' }
 
-//       const res = await spotifyApi.skipToPrevious()
+      const res = await spotifyApi.skipToNext()
+      console.log(`res.body === ${Object.keys(res.body)}`)
+      console.log(`res.body.is_ === ${Object.keys(res.body.is_)}`)
 
-//       if (statusCode !== 204)
-//         throw { code: 'spotifyApi', message: 'Error skipping track' }
-//     } catch (err) {
-//       return rejectWithValue({
-//         code: err.code || 'error',
-//         message: err.message ? err.message : 'Unknown error',
-//         fields: [],
-//       })
-//     }
-//   }
-// )
+      if (res.statusCode !== 204)
+        throw { code: 'spotifyApi', message: 'Error skipping track' }
+
+      return res.body
+    } catch (err) {
+      return rejectWithValue({
+        code: err.code || 'error',
+        message: err.message ? err.message : 'Unknown error',
+        fields: [],
+      })
+    }
+  }
+)
+
+export const skipToPrevious = createAsyncThunk(
+  `${sliceName}/skipToPrevious`,
+  async (spotifyApi, { rejectWithValue }) => {
+    try {
+      if (!spotifyApi.getAccessToken())
+        throw { code: 'auth', message: 'Spotify token error' }
+
+      const res = await spotifyApi.skipToPrevious()
+
+      if (res.statusCode !== 204)
+        throw { code: 'spotifyApi', message: 'Error skipping track' }
+
+      return res
+    } catch (err) {
+      return rejectWithValue({
+        code: err.code || 'error',
+        message: err.message ? err.message : 'Unknown error',
+        fields: [],
+      })
+    }
+  }
+)
 
 const entityAdapterThunks = [
   {
@@ -175,14 +202,23 @@ const entityAdapterThunks = [
     },
     thunk: hydrateMediaPlayer,
   },
-  // {
-  //   adapterFunc: (state, { selectedMedia, isPlaying }) => {
-  //     // state.selectedMedia = selectedMedia
-  //     // state.isPlaying = isPlaying
-  //     // state.volume = 50
-  //   },
-  //   thunk: skipToPrevious,
-  // },
+  {
+    adapterFunc: (state, action) => {
+      console.log(`payload === ${action.payload}`)
+      // state.selectedMedia = selectedMedia
+      // state.isPlaying = isPlaying
+      // state.volume = 50
+    },
+    thunk: skipToNext,
+  },
+  {
+    adapterFunc: (state, { selectedMedia, isPlaying }) => {
+      // state.selectedMedia = selectedMedia
+      // state.isPlaying = isPlaying
+      // state.volume = 50
+    },
+    thunk: skipToPrevious,
+  },
 ]
 
 export const initialMediaPlayerState = {
