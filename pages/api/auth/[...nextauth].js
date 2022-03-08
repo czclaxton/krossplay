@@ -1,6 +1,8 @@
 import NextAuth from 'next-auth'
 import SpotifyProvider from 'next-auth/providers/spotify'
 import { spotifyApi, LOGIN_URL } from '../../../lib/spotify'
+import SequelizeAdapter from '@next-auth/sequelize-adapter'
+import { Sequelize } from 'sequelize'
 
 const refreshAccessToken = async token => {
   try {
