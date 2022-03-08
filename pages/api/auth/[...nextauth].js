@@ -2,7 +2,9 @@ import NextAuth from 'next-auth'
 import SpotifyProvider from 'next-auth/providers/spotify'
 import { spotifyApi, LOGIN_URL } from '../../../lib/spotify'
 import SequelizeAdapter from '@next-auth/sequelize-adapter'
-import { Sequelize } from 'sequelize'
+import db from '../../../models'
+
+const { sequelize } = db
 
 const refreshAccessToken = async token => {
   try {
@@ -36,6 +38,9 @@ export default NextAuth({
       authorization: LOGIN_URL,
     }),
   ],
+  adapter: SequelizeAdapter(sequelize, {
+    models: db,
+  }),
   secret: process.env.JWT_SECRET,
   pages: {
     signIn: '/login',
