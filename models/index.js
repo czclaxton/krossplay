@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize'
+import { userFactory } from './user'
 
 if (!process.env.DATABASE_URL) throw 'Missing Database URL'
 
@@ -13,8 +14,6 @@ const dbConfig = {
 }
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, dbConfig)
-
-sequelize.sync()
 
 const db = {
   sequelize,
